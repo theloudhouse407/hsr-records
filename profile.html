@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Profile</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <a href="index.html" class="back">← Back to Drivers</a>
+    <h1 id="driverTitle"></h1>
+
+    <div class="race-inputs">
+      <input id="lapTime" placeholder="Lap Time (eg. 01:22.53)">
+      <input id="racePlace" placeholder="Race Position (1-20)">
+      <input id="laps" placeholder="Laps Completed">
+
+      <button onclick="addRaceData()">Add Entry</button>
+    </div>
+
+    <h2>Race Data</h2>
+    <table id="raceTable">
+      <thead>
+        <tr>
+          <th>Lap Time</th>
+          <th>Position</th>
+          <th>Laps</th>
+        </tr>
+      </thead>
+      <tbody id="raceTableBody"></tbody>
+    </table>
+
+    <button class="finish-btn" onclick="finishRace()">
+      Finish Race (clear race data)
+    </button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
