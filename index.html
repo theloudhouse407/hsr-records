@@ -1,26 +1,487 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Horizon Sector Racing | Drivers</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Horizon Sector Racing — Driver Manager</title>
+  <style>
+    :root{
+      --bg: #ffffff; /* page background */
+      --panel: #f4f4f4; /* card background */
+      --card: #ffffff;
+      --accent: #FF7A00; /* Horizon Orange */
+      --dark: #2E2E2E; /* dark grey text */
+      --muted: #8a8a8a;
+      --glass: rgba(46,46,46,0.03);
+      --success: #00c26a;
+      --danger: #ff4d4d;
+      --border: #e6e6e6;
+      --mono: Menlo, Monaco, "Courier New", monospace;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,#fafafa 0%, #fff 80%);
+      color:var(--dark);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      font-size:14px;
+    }
+    .wrap{max-width:1100px;margin:0 auto;}
+    header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+    .logo{
+      width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#ff9b3c);
+      display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;
+      box-shadow:0 6px 20px rgba(0,0,0,0.06);
+      font-family: var(--mono);
+    }
+    h1{font-size:20px;margin:0}
+    .sub{color:var(--muted);font-size:13px}
+    .controls{display:flex;gap:8px;margin:14px 0 18px;flex-wrap:wrap}
+    .card{
+      background:var(--card);
+      border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 6px 20px rgba(0,0,0,0.04);
+      border:1px solid var(--border);
+    }
+    .add-box{display:flex;gap:8px}
+    input[type="text"], input[type="datetime-local"]{
+      background:transparent;border:1px solid var(--border);color:var(--dark);padding:10px;border-radius:8px;flex:1;
+    }
+    button{background:var(--accent);color:#fff;border:none;padding:10px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+    button.ghost{background:transparent;border:1px solid var(--border);color:var(--dark);font-weight:600}
+    .drivers{margin-top:10px}
+    .driver-card{padding:10px;border-radius:10px;background:var(--panel);border:1px solid var(--border);margin-bottom:10px}
+    .driver-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .driver-left{display:flex;gap:12px;align-items:center}
+    .driver-avatar{width:48px;height:48;border-radius:8px;background:linear-gradient(180deg,#fff6ef,#fff0e6);display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;font-size:18px}
+    .driver-meta{display:flex;flex-direction:column}
+    .driver-meta .name{font-weight:700}
+    .driver-meta .meta{color:var(--muted);font-size:12px}
+    .driver-actions{display:flex;gap:8px;align-items:center}
+    .accordion{margin-top:10px;border-radius:8px;overflow:hidden;display:none}
+    .accordion.open{display:block}
+    .races-list{margin-top:12px}
+    .race-card{background:#ffffff;padding:12px;border-radius:8px;border:1px solid var(--border);margin-top:8px}
+    .race-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .race-title{font-weight:800;color:var(--accent)}
+    .muted{color:var(--muted);font-size:13px}
+    .race-info{display:flex;gap:12px;align-items:center;margin-top:8px;flex-wrap:wrap}
+    .pill{background:#f7f7f7;padding:6px 10px;border-radius:999px;font-weight:700;color:var(--dark);border:1px solid var(--border)}
+    .controls-row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+    .num-control{display:flex;align-items:center;gap:8px;background:transparent;padding:6px;border-radius:8px;border:1px solid var(--border)}
+    .num-control button{background:transparent;color:var(--accent);padding:6px;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-weight:800}
+    .stopwatch{display:flex;align-items:center;gap:8px;margin-top:12px}
+    .sw-time{font-family:var(--mono);font-size:18px;background:#fff;padding:8px;border-radius:8px;border:1px solid var(--border);color:var(--accent)}
+    .lap-list{margin-top:12px}
+    .lap-item{display:flex;justify-content:space-between;padding:8px;margin-top:6px;border-radius:6px;background:#fff;border:1px solid var(--border)}
+    .small{font-size:13px;color:var(--muted)}
+    .finish{background:var(--success);color:#fff}
+    .danger{background:var(--danger);color:#fff}
+    .edit-input{background:#fff;border:1px solid var(--border);padding:8px;border-radius:6px;color:var(--dark)}
+    .row{display:flex;gap:8px;align-items:center}
+    footer{margin-top:18px;color:var(--muted);font-size:13px}
+    .top-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    @media (max-width:820px){.driver-row{flex-direction:column;align-items:flex-start}}
+  </style>
 </head>
-
 <body>
-  <div class="container">
-    <h1>Horizon Sector Racing</h1>
-    <h2>Driver Profiles</h2>
+  <div class="wrap">
+    <header>
+      <div class="logo">HSR</div>
+      <div>
+        <h1>Horizon Sector Racing — Driver Manager</h1>
+        <div class="sub">Local • Orange / Grey / White theme — drivers, races, stopwatch, lap controls</div>
+      </div>
+    </header>
 
-    <div class="add-driver-box">
-      <input id="driverName" placeholder="Enter driver username">
-      <button onclick="addDriver()">Add Driver</button>
+    <div class="card">
+      <div class="add-box" style="gap:10px">
+        <input id="newDriver" placeholder="Enter driver username (exact in-game name)">
+        <button id="addDriverBtn">Add Driver</button>
+        <button id="importSample" class="ghost">Import Sample</button>
+        <div style="margin-left:auto" class="top-controls">
+          <button id="exportAll" class="ghost">Export All</button>
+          <button id="clearAll" class="ghost">Clear All</button>
+        </div>
+      </div>
+      <div style="margin-top:8px;color:var(--muted);font-size:13px">
+        Tip: Profiles use exact text. Use Export All to back up data.
+      </div>
     </div>
 
-    <h3>All Drivers</h3>
-    <div id="driverList"></div>
+    <div id="driversContainer" class="drivers"></div>
+
+    <footer>
+      <div>Saved locally in your browser (key: <code>hsr_drivers_v2</code>). Export before clearing browser data.</div>
+    </footer>
   </div>
 
-  <script src="app.js"></script>
+<script>
+/* --------------------------
+   Horizon Sector Racing — Local Driver Manager (Orange Theme)
+   Key: hsr_drivers_v2
+   -------------------------- */
+
+const STORAGE_KEY = 'hsr_drivers_v2';
+let drivers = loadDrivers();
+
+// Basic helpers
+function uid(prefix='id'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+function nowISO(){ return (new Date()).toISOString(); }
+function formatDate(iso){ const d=new Date(iso); return d.toLocaleString(); }
+function ordinal(n){
+  if(n%100 >=11 && n%100 <=13) return n + 'th';
+  const r = n%10;
+  if(r===1) return n+'st';
+  if(r===2) return n+'nd';
+  if(r===3) return n+'rd';
+  return n+'th';
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// storage
+function saveDrivers(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(drivers)); }
+function loadDrivers(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):[] }catch(e){console.error('load error',e);return[]} }
+
+// UI
+const driversContainer = document.getElementById('driversContainer');
+
+function render(){
+  driversContainer.innerHTML = '';
+  if(drivers.length === 0){
+    driversContainer.innerHTML = `<div class="card"><div class="muted" style="padding:16px">No drivers yet. Add a driver above to get started.</div></div>`;
+    return;
+  }
+
+  drivers.forEach(driver=>{
+    const driverCard = document.createElement('div'); driverCard.className='driver-card';
+    driverCard.dataset.id = driver.id;
+
+    // header
+    const header = document.createElement('div'); header.className='driver-row';
+    header.innerHTML = `
+      <div class="driver-left">
+        <div class="driver-avatar">${escapeHtml(driver.name.charAt(0) || '?')}</div>
+        <div class="driver-meta">
+          <div class="name">${escapeHtml(driver.name)}</div>
+          <div class="meta small">${driver.races.length} ${driver.races.length===1?'race':'races'}</div>
+        </div>
+      </div>
+      <div class="driver-actions">
+        <button class="ghost" data-act="toggle">${isExpanded(driver.id)?'Collapse':'Open'}</button>
+        <button class="ghost" data-act="edit">Edit</button>
+        <button class="danger" data-act="delete">Delete</button>
+      </div>
+    `;
+    driverCard.appendChild(header);
+
+    // accordion
+    const acc = document.createElement('div'); acc.className='accordion' + (isExpanded(driver.id)?' open':''); acc.dataset.acc = driver.id;
+
+    acc.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;gap:8px;align-items:center">
+          <button data-act="new-race">+ New Race</button>
+          <div class="small muted">Driver dropdown — races listed below</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="ghost" data-act="export">Export</button>
+        </div>
+      </div>
+      <div class="races-list" style="margin-top:10px"></div>
+    `;
+
+    driverCard.appendChild(acc);
+    driversContainer.appendChild(driverCard);
+
+    // bind events
+    header.querySelector('[data-act="toggle"]').addEventListener('click', ()=> toggleExpanded(driver.id));
+    header.querySelector('[data-act="edit"]').addEventListener('click', ()=> editDriverName(driver.id));
+    header.querySelector('[data-act="delete"]').addEventListener('click', ()=> deleteDriver(driver.id));
+    acc.querySelector('[data-act="new-race"]').addEventListener('click', ()=> createRace(driver.id));
+    acc.querySelector('[data-act="export"]').addEventListener('click', ()=> exportDriver(driver.id));
+
+    // render races
+    const racesList = acc.querySelector('.races-list');
+    driver.races.forEach(race => {
+      racesList.appendChild(renderRaceCard(driver.id, race));
+    });
+  });
+}
+
+// expansion tracking
+let expandedMap = {};
+function isExpanded(id){ return !!expandedMap[id]; }
+function toggleExpanded(id){ expandedMap[id] = !expandedMap[id]; render(); }
+
+// add driver
+document.getElementById('addDriverBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('newDriver').value.trim();
+  if(!name) return alert('Enter a driver username.');
+  if(drivers.some(d => d.name.toLowerCase() === name.toLowerCase())) return alert('Driver already exists.');
+  const newDriver = { id: uid('drv'), name, races: [] };
+  drivers.unshift(newDriver);
+  saveDrivers();
+  document.getElementById('newDriver').value = '';
+  expandedMap[newDriver.id] = true;
+  render();
+});
+
+// import/export/clear all
+document.getElementById('importSample').addEventListener('click', ()=>{
+  if(!confirm('Import sample data?')) return;
+  drivers = [
+    { id: uid('drv'), name: 'MaxVelocity', races: [
+      { id: uid('race'), title: 'Night Sprint', createdAt: nowISO(), position: 2, laps: 3, lapTimes: ['00:45.231','00:44.900'], finished:false }
+    ]},
+    { id: uid('drv'), name: 'RacerChloe', races: [
+      { id: uid('race'), title: 'Evening Cup', createdAt: nowISO(), position: 1, laps: 2, lapTimes: [], finished:false }
+    ]}
+  ];
+  saveDrivers(); render();
+});
+
+document.getElementById('exportAll').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(drivers, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `hsr_drivers_export.json`; a.click(); URL.revokeObjectURL(url);
+});
+
+document.getElementById('clearAll').addEventListener('click', ()=>{
+  if(!confirm('Clear all driver data? This cannot be undone unless exported.')) return;
+  drivers = []; saveDrivers(); render();
+});
+
+// edit / delete driver
+function editDriverName(driverId){
+  const drv = drivers.find(d=>d.id===driverId);
+  if(!drv) return;
+  const nv = prompt('Edit driver name', drv.name);
+  if(nv && nv.trim()){ drv.name = nv.trim(); saveDrivers(); render(); }
+}
+function deleteDriver(driverId){
+  if(!confirm('Delete this driver profile and all its races?')) return;
+  drivers = drivers.filter(d=>d.id!==driverId); saveDrivers(); render();
+}
+function exportDriver(driverId){
+  const drv = drivers.find(d=>d.id===driverId); if(!drv) return;
+  const blob = new Blob([JSON.stringify(drv, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${drv.name.replace(/\s+/g,'_')}_hsr_profile.json`; a.click(); URL.revokeObjectURL(url);
+}
+
+// create race
+function createRace(driverId){
+  const driver = drivers.find(d=>d.id===driverId);
+  if(!driver) return;
+  const title = prompt('Race title (optional)', `Race - ${new Date().toLocaleString()}`);
+  const race = {
+    id: uid('race'),
+    title: title || 'Unnamed Race',
+    createdAt: nowISO(),
+    position: 1,
+    laps: 0,
+    lapTimes: [],
+    finished: false
+  };
+  driver.races.unshift(race); saveDrivers(); expandedMap[driverId]=true; render();
+}
+
+// render race card
+function renderRaceCard(driverId, race){
+  const container = document.createElement('div'); container.className='race-card'; container.dataset.raceId = race.id;
+
+  // header
+  const top = document.createElement('div'); top.className='race-top';
+  top.innerHTML = `
+    <div>
+      <div class="race-title">${escapeHtml(race.title)}</div>
+      <div class="small muted">${formatDate(race.createdAt)}</div>
+    </div>
+    <div class="small muted">${race.finished ? 'Finished' : 'Active'}</div>
+  `;
+  container.appendChild(top);
+
+  // info pills
+  const info = document.createElement('div'); info.className='race-info';
+  const posPill = document.createElement('div'); posPill.className='pill'; posPill.innerHTML = `Position: <strong>${ordinal(race.position)}</strong>`;
+  const lapsPill = document.createElement('div'); lapsPill.className='pill'; lapsPill.innerHTML = `Laps: <strong>${race.laps}</strong>`;
+  const lapCount = document.createElement('div'); lapCount.className='pill small'; lapCount.textContent = `Lap times: ${race.lapTimes.length}`;
+  info.appendChild(posPill); info.appendChild(lapsPill); info.appendChild(lapCount);
+  container.appendChild(info);
+
+  // controls (position + laps)
+  const controls = document.createElement('div'); controls.className='controls-row';
+  const posCtrl = document.createElement('div'); posCtrl.className='num-control';
+  posCtrl.innerHTML = `<button ${race.finished?'disabled':''} data-act="pos-dec">−</button>
+                       <div style="min-width:48px;text-align:center">${race.position}</div>
+                       <button ${race.finished?'disabled':''} data-act="pos-inc">+</button>`;
+  const lapCtrl = document.createElement('div'); lapCtrl.className='num-control';
+  lapCtrl.innerHTML = `<button ${race.finished?'disabled':''} data-act="lap-dec">−</button>
+                       <div style="min-width:48px;text-align:center">${race.laps}</div>
+                       <button ${race.finished?'disabled':''} data-act="lap-inc">+</button>`;
+
+  controls.appendChild(posCtrl); controls.appendChild(lapCtrl);
+
+  // action buttons
+  const btnEdit = document.createElement('button'); btnEdit.className='ghost'; btnEdit.textContent='Edit';
+  const btnFinish = document.createElement('button'); btnFinish.className='finish'; btnFinish.textContent='Finish Race';
+  const btnExport = document.createElement('button'); btnExport.className='ghost'; btnExport.textContent='Export Race';
+  if(race.finished){ btnEdit.disabled=true; btnFinish.disabled=true; }
+  controls.appendChild(btnEdit); controls.appendChild(btnFinish); controls.appendChild(btnExport);
+  container.appendChild(controls);
+
+  // stopwatch
+  const sw = document.createElement('div'); sw.className='stopwatch';
+  sw.innerHTML = `<div class="sw-time">00:00.000</div>
+    <div class="row">
+      <button data-act="sw-start" ${race.finished?'disabled':''}>Start</button>
+      <button data-act="sw-stop" disabled>Stop</button>
+      <button data-act="sw-reset" disabled>Reset</button>
+      <button data-act="sw-save" ${race.finished?'disabled':''}>Save Lap</button>
+    </div>`;
+  container.appendChild(sw);
+
+  // lap list
+  const lapList = document.createElement('div'); lapList.className='lap-list'; container.appendChild(lapList);
+
+  // finished note
+  if(race.finished){
+    const fin = document.createElement('div'); fin.style.marginTop='8px';
+    fin.innerHTML = `<div class="small muted">Finished at: ${formatDate(race.finishedAt || race.createdAt)}</div>`;
+    container.appendChild(fin);
+  }
+
+  // find driver
+  const driver = drivers.find(d => d.races.some(r => r.id === race.id));
+  if(!driver) return container;
+
+  // update UI func
+  function updateAndSave(){
+    saveDrivers();
+    // update visible pills & lap list
+    posPill.innerHTML = `Position: <strong>${ordinal(race.position)}</strong>`;
+    lapsPill.innerHTML = `Laps: <strong>${race.laps}</strong>`;
+    lapCount.textContent = `Lap times: ${race.lapTimes.length}`;
+    renderLapList();
+  }
+
+  // lap list renderer
+  function renderLapList(){
+    lapList.innerHTML = '';
+    race.lapTimes.forEach((lt, idx)=>{
+      const itm = document.createElement('div'); itm.className='lap-item';
+      itm.innerHTML = `<div><strong>#${idx+1}</strong> ${lt}</div>
+                       <div class="row">
+                         <div class="small muted">${lt}</div>
+                         <button class="ghost" data-act="del-lap" ${race.finished?'disabled':''}>Delete</button>
+                       </div>`;
+      lapList.appendChild(itm);
+      itm.querySelector('[data-act="del-lap"]').addEventListener('click', ()=>{
+        if(!confirm('Delete this lap time?')) return;
+        race.lapTimes.splice(idx,1);
+        if(race.laps > race.lapTimes.length) race.laps = race.lapTimes.length;
+        updateAndSave();
+      });
+    });
+    if(race.lapTimes.length === 0) lapList.innerHTML = `<div class="small muted" style="margin-top:6px">No lap times yet.</div>`;
+  }
+
+  // stopwatch logic
+  let swInterval = null;
+  let swStart = null;
+  let swElapsed = 0;
+
+  const swTimeEl = sw.querySelector('.sw-time');
+  const swStartBtn = sw.querySelector('[data-act="sw-start"]');
+  const swStopBtn = sw.querySelector('[data-act="sw-stop"]');
+  const swResetBtn = sw.querySelector('[data-act="sw-reset"]');
+  const swSaveBtn = sw.querySelector('[data-act="sw-save"]');
+
+  function msToDisplay(ms){
+    const minutes = Math.floor(ms/60000).toString().padStart(2,'0');
+    const seconds = Math.floor((ms%60000)/1000).toString().padStart(2,'0');
+    const msPart = (ms%1000).toString().padStart(3,'0');
+    return `${minutes}:${seconds}.${msPart}`;
+  }
+  function updateSwDisplay(){ swTimeEl.textContent = msToDisplay(swElapsed); }
+
+  swStartBtn.addEventListener('click', ()=>{
+    if(race.finished) return;
+    swStart = Date.now() - swElapsed;
+    swInterval = setInterval(()=>{ swElapsed = Date.now() - swStart; updateSwDisplay(); }, 25);
+    swStartBtn.disabled = true; swStopBtn.disabled = false; swResetBtn.disabled = false;
+  });
+  swStopBtn.addEventListener('click', ()=>{
+    if(swInterval) clearInterval(swInterval); swInterval = null;
+    swElapsed = Date.now() - swStart;
+    swStartBtn.disabled = false; swStopBtn.disabled = true; swResetBtn.disabled = false;
+  });
+  swResetBtn.addEventListener('click', ()=>{
+    if(swInterval) clearInterval(swInterval); swInterval = null;
+    swStart = null; swElapsed = 0; updateSwDisplay();
+    swStartBtn.disabled = false; swStopBtn.disabled = true; swResetBtn.disabled = true;
+  });
+  swSaveBtn.addEventListener('click', ()=>{
+    if(race.finished) return;
+    const t = msToDisplay(swElapsed);
+    race.lapTimes.push(t);
+    race.laps = Math.max(race.laps, race.lapTimes.length);
+    updateAndSave();
+  });
+
+  // numeric controls
+  posCtrl.querySelector('[data-act="pos-inc"]').addEventListener('click', ()=>{
+    // "plus" moves toward better position (1 is best). We'll decrease number when pressing + for better position.
+    race.position = Math.max(1, race.position - 1);
+    updateAndSave();
+  });
+  posCtrl.querySelector('[data-act="pos-dec"]').addEventListener('click', ()=>{
+    race.position = race.position + 1;
+    updateAndSave();
+  });
+  lapCtrl.querySelector('[data-act="lap-inc"]').addEventListener('click', ()=>{
+    race.laps = race.laps + 1;
+    updateAndSave();
+  });
+  lapCtrl.querySelector('[data-act="lap-dec"]').addEventListener('click', ()=>{
+    race.laps = Math.max(0, race.laps - 1);
+    if(race.lapTimes.length > race.laps) race.lapTimes.splice(race.laps);
+    updateAndSave();
+  });
+
+  // edit / finish / export
+  btnEdit.addEventListener('click', ()=>{
+    if(race.finished) return;
+    const nv = prompt('Edit race title', race.title);
+    if(nv && nv.trim()){ race.title = nv.trim(); saveDrivers(); render(); }
+  });
+
+  btnFinish.addEventListener('click', ()=>{
+    if(!confirm('Finish this race? This will lock the race and clear live lap times.')) return;
+    race.finished = true;
+    race.finishedAt = nowISO();
+    // Spec: clear lapTimes on finish (per your earlier spec)
+    race.lapTimes = [];
+    saveDrivers(); render();
+  });
+
+  btnExport.addEventListener('click', ()=>{
+    const payload = { driverId, race };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${race.title.replace(/\s+/g,'_')}_race.json`; a.click(); URL.revokeObjectURL(url);
+  });
+
+  // init
+  updateAndSave();
+  return container;
+}
+
+// initial render
+render();
+
+</script>
 </body>
 </html>
